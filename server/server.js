@@ -27,6 +27,11 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 
+// API Health Check
+app.get("/api", (req, res) => {
+  res.json({ status: "ok", message: "CineVault API Running" });
+});
+
 // Basic route
 app.get("/", (req, res) => {
   res.send("CineVault API Running...");
