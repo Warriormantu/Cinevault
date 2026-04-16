@@ -23,13 +23,12 @@ export default function MovieDetails() {
           `${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US`
         );
         setMovie(res.data);
-        
-        // Check if movie is already in favorites
+
         try {
           const favRes = await checkIfFavorite(id);
           setIsFav(favRes.data.isFavorite);
         } catch (favError) {
-          console.log("Could not check favorite status (user may not be logged in)");
+          console.log('Could not check favorite status (user may not be logged in)');
         }
       } catch (err) {
         console.error('Error fetching movie:', err);
@@ -72,10 +71,11 @@ export default function MovieDetails() {
       <div className="bg-black min-h-screen text-white flex items-center justify-center flex-col">
         <div className="text-2xl text-red-600 mb-4">{error}</div>
         <button
+          type="button"
           onClick={() => navigate(-1)}
           className="bg-red-600 px-6 py-2 rounded hover:bg-red-700 transition"
         >
-          ⬅ Back
+          Back
         </button>
       </div>
     );
@@ -91,18 +91,17 @@ export default function MovieDetails() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      {/* Back Button */}
-      <div className="p-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         <button
+          type="button"
           onClick={() => navigate(-1)}
           className="bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition text-sm font-bold"
         >
-          ⬅ Back
+          Back
         </button>
       </div>
 
-      {/* Movie Header */}
-      <div className="relative h-96 bg-gradient-to-b from-gray-800 to-black">
+      <div className="relative h-[240px] sm:h-[320px] lg:h-96 bg-gradient-to-b from-gray-800 to-black overflow-hidden">
         {movie.backdrop_path && (
           <img
             src={`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`}
@@ -112,31 +111,27 @@ export default function MovieDetails() {
         )}
       </div>
 
-      {/* Movie Details */}
-      <div className="max-w-5xl mx-auto px-6 py-8 relative -mt-32">
-        <div className="flex gap-8">
-          {/* Poster */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-12 relative -mt-16 sm:-mt-24 lg:-mt-32 z-10">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
           {movie.poster_path && (
             <img
               src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
               alt={movie.title || movie.name}
-              className="w-48 h-72 rounded-lg shadow-2xl object-cover"
+              className="w-40 h-60 sm:w-48 sm:h-72 rounded-lg shadow-2xl object-cover mx-auto md:mx-0"
             />
           )}
 
-          {/* Info */}
-          <div className="flex-1">
-            <h1 className="text-5xl font-bold mb-2">
+          <div className="flex-1 w-full">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">
               {movie.title || movie.name}
             </h1>
             <p className="text-gray-400 mb-4 text-lg">
               {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
             </p>
 
-            {/* Rating */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-4 mb-6">
               <div className="flex items-center">
-                <span className="text-yellow-500 text-2xl">★</span>
+                <span className="text-yellow-500 text-2xl">*</span>
                 <span className="text-xl ml-2 font-bold">
                   {movie.vote_average?.toFixed(1)}/10
                 </span>
@@ -144,7 +139,6 @@ export default function MovieDetails() {
               <span className="text-gray-400">({movie.vote_count} votes)</span>
             </div>
 
-            {/* Genres */}
             {movie.genres && movie.genres.length > 0 && (
               <div className="mb-6">
                 <p className="text-gray-400 mb-2">Genres:</p>
@@ -161,7 +155,6 @@ export default function MovieDetails() {
               </div>
             )}
 
-            {/* Overview */}
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-2">Overview</h3>
               <p className="text-gray-300 leading-relaxed">
@@ -169,9 +162,9 @@ export default function MovieDetails() {
               </p>
             </div>
 
-            {/* Action Buttons */}
             <div className="mb-6 flex gap-4">
               <button
+                type="button"
                 onClick={toggleFavorite}
                 disabled={addingToList}
                 className={`px-6 py-3 rounded font-bold text-white transition ${
@@ -180,11 +173,10 @@ export default function MovieDetails() {
                     : 'bg-gray-600 hover:bg-gray-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {addingToList ? 'Adding...' : isFav ? '✓ In My List' : '+ My List'}
+                {addingToList ? 'Saving...' : isFav ? 'In My List' : 'Add to My List'}
               </button>
             </div>
 
-            {/* Additional Info */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               {movie.runtime && (
                 <div>
