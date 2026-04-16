@@ -49,7 +49,7 @@ export default function MovieDetails() {
       } else {
         await addToFavorites(id);
       }
-      setIsFav(!isFav);
+      setIsFav((current) => !current);
     } catch (err) {
       console.error('Error toggling favorite:', err);
       alert('Error updating favorites. Make sure you are logged in!');
@@ -173,7 +173,7 @@ export default function MovieDetails() {
                     : 'bg-gray-600 hover:bg-gray-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {addingToList ? 'Saving...' : isFav ? 'In My List' : 'Add to My List'}
+                {addingToList ? 'Saving...' : isFav ? '- Remove from My List' : '+ Add to My List'}
               </button>
             </div>
 

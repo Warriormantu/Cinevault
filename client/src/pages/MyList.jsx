@@ -16,18 +16,16 @@ export default function MyList() {
     const fetchMyList = async () => {
       try {
         setLoading(true);
-        
-        // Get favorite movie IDs
+
         const favRes = await getFavorites();
         const favoriteIds = favRes.data.favorites || [];
-        
+
         if (favoriteIds.length === 0) {
           setMovies([]);
           setLoading(false);
           return;
         }
 
-        // Fetch details for each movie
         const movieDetails = await Promise.all(
           favoriteIds.map(async (id) => {
             try {
@@ -42,11 +40,10 @@ export default function MyList() {
           })
         );
 
-        // Filter out any that failed
-        setMovies(movieDetails.filter(m => m !== null));
+        setMovies(movieDetails.filter((movie) => movie !== null));
       } catch (err) {
         console.error('Error fetching favorites:', err);
-        setError('Failed to load your list. Make sure you are logged in!');
+        setError('Failed to load your list. Make sure you are logged in.');
       } finally {
         setLoading(false);
       }
@@ -58,7 +55,7 @@ export default function MyList() {
   const handleRemove = async (movieId) => {
     try {
       await removeFavorite(movieId);
-      setMovies(movies.filter(m => m.id !== movieId));
+      setMovies((currentMovies) => currentMovies.filter((movie) => movie.id !== movieId));
     } catch (err) {
       console.error('Error removing movie:', err);
       alert('Error removing movie from your list');
@@ -77,39 +74,37 @@ export default function MyList() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="mb-10 rounded-2xl border border-gray-800 bg-gradient-to-r from-gray-950 via-black to-gray-950 p-6">
           <button
+            type="button"
             onClick={() => navigate('/')}
             className="text-gray-400 hover:text-white mb-4 transition"
           >
-            ← Back to Home
+            Back to Home
           </button>
-          <h1 className="text-4xl font-bold mb-2">🎬 My List</h1>
+          <h1 className="text-4xl font-bold mb-2">My List</h1>
           <p className="text-gray-400">
             {movies.length} movie{movies.length !== 1 ? 's' : ''} in your watchlist
           </p>
         </div>
 
-        {/* Error State */}
         {error && (
-          <div className="bg-red-900 border border-red-700 rounded-lg p-4 mb-8 text-center">
+          <div className="bg-red-900 border border-red-700 rounded-2xl p-4 mb-8 text-center">
             <p className="text-red-200">{error}</p>
           </div>
         )}
 
-        {/* Empty State */}
         {movies.length === 0 ? (
-          <div className="bg-gray-900 rounded-lg p-12 border border-gray-800 text-center">
-            <p className="text-5xl mb-4">🎭</p>
+          <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
             <h2 className="text-3xl font-bold mb-2">Your List is Empty</h2>
             <p className="text-gray-400 mb-6">
-              Add movies to your list by clicking "+ My List" on any movie details page!
+              Add movies from a details page with the + button and remove them later with the - button.
             </p>
             <button
+              type="button"
               onClick={() => navigate('/')}
-              className="bg-red-600 px-8 py-3 rounded font-bold hover:bg-red-700 transition"
+              className="bg-red-600 px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition"
             >
               Discover Movies
             </button>
@@ -119,9 +114,8 @@ export default function MyList() {
             {movies.map((movie) => (
               <div
                 key={movie.id}
-                className="bg-gray-900 rounded-lg overflow-hidden hover:shadow-2xl transition group cursor-pointer"
+                className="bg-gray-900 rounded-2xl overflow-hidden hover:shadow-2xl transition group cursor-pointer border border-gray-800"
               >
-                {/* Poster */}
                 <div className="relative overflow-hidden bg-gray-800 h-64">
                   {movie.poster_path ? (
                     <>
@@ -133,11 +127,12 @@ export default function MyList() {
                       />
                       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition"></div>
                       <button
+                        type="button"
                         onClick={() => handleRemove(movie.id)}
-                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded opacity-0 group-hover:opacity-100 transition"
+                        className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white h-9 w-9 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                         title="Remove from My List"
                       >
-                        ✕
+                        -
                       </button>
                     </>
                   ) : (
@@ -147,7 +142,6 @@ export default function MyList() {
                   )}
                 </div>
 
-                {/* Info */}
                 <div className="p-4">
                   <h3
                     className="font-bold text-sm line-clamp-2 hover:text-red-600 transition"
@@ -159,7 +153,7 @@ export default function MyList() {
                     {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
                   </p>
                   <div className="flex items-center mt-2">
-                    <span className="text-yellow-500 text-sm">★</span>
+                    <span className="text-yellow-500 text-sm">*</span>
                     <span className="text-sm ml-1 font-bold">
                       {movie.vote_average?.toFixed(1)}
                     </span>
@@ -173,12 +167,11 @@ export default function MyList() {
           </div>
         )}
 
-        {/* Tips Section */}
         {movies.length > 0 && (
-          <div className="mt-16 bg-gray-900 rounded-lg p-8 border border-gray-800">
-            <h3 className="text-lg font-bold mb-4">💡 Tip</h3>
+          <div className="mt-16 bg-gray-900 rounded-2xl p-8 border border-gray-800">
+            <h3 className="text-lg font-bold mb-4">Tip</h3>
             <p className="text-gray-300">
-              Click any movie to see more details or remove it from your list by clicking the ✕ button. Your list is automatically saved!
+              Click any movie to open details. Use the - button to remove it from your saved list instantly.
             </p>
           </div>
         )}
