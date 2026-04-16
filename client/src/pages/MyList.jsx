@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getFavorites, removeFavorite } from '../services/user';
 
-const API_KEY = 'YOUR_TMDB_API_KEY';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 export default function MyList() {
