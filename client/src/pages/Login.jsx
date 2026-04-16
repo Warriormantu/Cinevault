@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const startsInSignupMode =
+    new URLSearchParams(location.search).get('mode') === 'signup';
+  const [isLogin, setIsLogin] = useState(!startsInSignupMode);
   const [form, setForm] = useState({ 
     username: '', 
     email: '', 
@@ -12,7 +16,6 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const navigate = useNavigate();
   const { login, register } = useAuth();
 
   const handleChange = (e) => {
@@ -39,6 +42,11 @@ export default function Login() {
         // Register
         if (!form.username || !form.email || !form.password) {
           setError('All fields are required');
+          setLoading(false);
+          return;
+        }
+        if (form.password.length < 6) {
+          setError('Password must be at least 6 characters long');
           setLoading(false);
           return;
         }
@@ -131,10 +139,12 @@ export default function Login() {
           <p className="text-gray-400 text-sm text-center">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}
             <button
+              type="button"
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError('');
                 setForm({ username: '', email: '', password: '' });
+                navigate(isLogin ? '/login?mode=signup' : '/login', { replace: true });
               }}
               className="text-red-600 font-bold hover:text-red-500 ml-1 transition"
             >

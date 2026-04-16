@@ -8,7 +8,17 @@ const generateToken = (id) => {
 // Register user
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const username = req.body.username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "Username, email, and password are required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
 
     // Check if user exists
     let user = await User.findOne({ $or: [{ email }, { username }] });
@@ -39,6 +49,10 @@ export const register = async (req, res) => {
       user: { id: user._id, username: user.username, email: user.email },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
     res.status(500).json({ message: error.message });
   }
 };
@@ -46,7 +60,8 @@ export const register = async (req, res) => {
 // Login user
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
