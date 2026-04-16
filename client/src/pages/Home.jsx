@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
 import Banner from '../components/Banner';
 import Row from '../components/Row';
 import SearchBar from '../components/SearchBar';
@@ -54,8 +53,6 @@ export default function Home() {
 
   return (
     <div className="bg-black min-h-screen">
-      <Navbar />
-      
       {/* Search Bar */}
       <SearchBar onSearch={handleSearch} loading={loading} />
 

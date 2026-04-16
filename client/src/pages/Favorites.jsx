@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 
 export default function Favorites() {
   const navigate = useNavigate();
@@ -8,7 +7,6 @@ export default function Favorites() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      <Navbar />
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-12">

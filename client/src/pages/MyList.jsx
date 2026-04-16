@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
 import { getFavorites, removeFavorite } from '../services/user';
 
 const API_KEY = 'YOUR_TMDB_API_KEY';
@@ -69,7 +68,6 @@ export default function MyList() {
   if (loading) {
     return (
       <div className="bg-black min-h-screen text-white">
-        <Navbar />
         <div className="flex items-center justify-center h-screen">
           <div className="text-2xl">Loading your list...</div>
         </div>
@@ -79,7 +77,6 @@ export default function MyList() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      <Navbar />
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-12">

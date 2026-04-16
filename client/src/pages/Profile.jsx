@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import Navbar from '../components/Navbar';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -14,7 +13,6 @@ export default function Profile() {
 
   return (
     <div className="bg-black min-h-screen text-white">
-      <Navbar />
       <div className="max-w-2xl mx-auto px-6 py-12">
         {/* Profile Header */}
         <div className="bg-gray-900 rounded-lg p-8 border border-gray-800 mb-8">

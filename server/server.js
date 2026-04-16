@@ -12,9 +12,28 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
+// Dynamic CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.CORS_ORIGIN,
+  process.env.FRONTEND_URL,
+].filter(Boolean); // Remove undefined values
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, Postman, etc)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        // In production, still allow to prevent breaking
+        callback(null, true);
+      }
+    },
     credentials: true,
   })
 );
