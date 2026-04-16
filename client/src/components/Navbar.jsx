@@ -41,12 +41,15 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3 sm:gap-6">
-        <button
-          type="button"
-          className="text-gray-400 hover:text-white transition text-sm font-semibold"
-        >
-          Search
-        </button>
+        {isAuthenticated && (
+          <button
+            type="button"
+            onClick={() => navigate('/mylist')}
+            className="text-gray-400 hover:text-white transition text-sm font-semibold"
+          >
+            My List
+          </button>
+        )}
 
         {isAuthenticated ? (
           <div ref={menuRef} className="relative">
