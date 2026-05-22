@@ -6,7 +6,7 @@ const API = axios.create({
   withCredentials: true,
 });
 
-// Add token to requests if it exists
+// Attach token to all requests
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -18,17 +18,23 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// User/Favorites endpoints
-export const addToFavorites = (movieId) =>
-  API.post("/favorites/add", { movieId });
+// ─── Favorites ──────────────────────────────────────────────────
+export const addToFavorites    = (movieId) => API.post("/favorites/add", { movieId });
+export const getFavorites      = ()         => API.get("/favorites");
+export const removeFavorite    = (movieId) => API.delete("/favorites/remove", { data: { movieId } });
+export const checkIfFavorite   = (movieId) => API.get("/favorites/check", { params: { movieId } });
 
-export const getFavorites = () =>
-  API.get("/favorites");
+// ─── Watchlist ───────────────────────────────────────────────────
+export const addToWatchlist      = (movieId) => API.post("/watchlist/add", { movieId });
+export const getWatchlist        = ()         => API.get("/watchlist");
+export const removeFromWatchlist = (movieId) => API.delete("/watchlist/remove", { data: { movieId } });
+export const checkIfInWatchlist  = (movieId) => API.get("/watchlist/check", { params: { movieId } });
 
-export const removeFavorite = (movieId) =>
-  API.delete("/favorites/remove", { data: { movieId } });
+// ─── Ratings ─────────────────────────────────────────────────────
+export const rateMovie     = (movieId, rating) => API.post("/rate", { movieId, rating });
+export const getUserRating = (movieId)          => API.get("/rating", { params: { movieId } });
 
-export const checkIfFavorite = (movieId) =>
-  API.get("/favorites/check", { params: { movieId } });
+// ─── Stats ───────────────────────────────────────────────────────
+export const getStats = () => API.get("/stats");
 
 export default API;

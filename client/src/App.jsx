@@ -8,6 +8,8 @@ import MovieDetails from './pages/MovieDetails';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
 import MyList from './pages/MyList';
+import Search from './pages/Search';
+import Watchlist from './pages/Watchlist';
 import Navbar from './components/Navbar';
 
 // Protected Route Component
@@ -29,7 +31,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="bg-black min-h-screen">
+    <div className="bg-[#0a0a0a] min-h-screen pb-16 md:pb-0">
       {/* Show Navbar always (with login button when not authenticated) */}
       <Navbar />
       
@@ -42,6 +44,19 @@ function AppContent() {
 
         {/* Movie Details Route (PUBLIC - everyone can browse) */}
         <Route path="/movie/:id" element={<MovieDetails />} />
+
+        {/* Search Route (PUBLIC) */}
+        <Route path="/search" element={<Search />} />
+
+        {/* Watchlist Route (PROTECTED - only logged in users) */}
+        <Route
+          path="/watchlist"
+          element={
+            <ProtectedRoute>
+              <Watchlist />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Profile Route (PROTECTED - only logged in users) */}
         <Route

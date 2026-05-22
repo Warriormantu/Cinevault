@@ -1,20 +1,25 @@
+import SkeletonCard from './SkeletonCard';
+
 export default function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black">
-      <div className="relative w-20 h-20">
-        {/* Outer circle */}
-        <div className="absolute inset-0 rounded-full border-4 border-gray-800"></div>
-        
-        {/* Spinning circle */}
-        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-red-600 border-r-red-600 animate-spin"></div>
-        
-        {/* Loading text */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-white text-sm font-bold mt-20">Loading...</p>
+    <div className="bg-[#0a0a0a] min-h-screen px-4 sm:px-6 pt-6 animate-fade-in">
+      {/* Fake skeleton banner */}
+      <div className="skeleton h-64 rounded-2xl mb-8" />
+
+      {/* 3 skeleton rows */}
+      {Array.from({ length: 3 }).map((_, rowIdx) => (
+        <div key={rowIdx} className="mb-10">
+          {/* Row title skeleton */}
+          <div className="skeleton h-5 w-48 rounded mb-4" />
+
+          {/* Row of 8 skeleton cards */}
+          <div className="flex gap-4 overflow-hidden">
+            {Array.from({ length: 8 }).map((_, cardIdx) => (
+              <SkeletonCard key={cardIdx} />
+            ))}
           </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 }

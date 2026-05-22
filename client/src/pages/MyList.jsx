@@ -6,6 +6,21 @@ import { getFavorites, removeFavorite } from '../services/user';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
+// ── Skeleton ──────────────────────────────────────────────────────
+function MyListSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex flex-col gap-2">
+          <div className="skeleton rounded-xl w-full" style={{ height: '240px' }} />
+          <div className="skeleton h-4 rounded-lg w-3/4" />
+          <div className="skeleton h-3 rounded-lg w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function MyList() {
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
@@ -16,6 +31,7 @@ export default function MyList() {
     const fetchMyList = async () => {
       try {
         setLoading(true);
+        setError(null);
 
         const favRes = await getFavorites();
         const favoriteIds = favRes.data.favorites || [];
@@ -40,7 +56,7 @@ export default function MyList() {
           })
         );
 
-        setMovies(movieDetails.filter((movie) => movie !== null));
+        setMovies(movieDetails.filter(Boolean));
       } catch (err) {
         console.error('Error fetching favorites:', err);
         setError('Failed to load your list. Make sure you are logged in.');
@@ -53,126 +69,137 @@ export default function MyList() {
   }, []);
 
   const handleRemove = async (movieId) => {
+    // Optimistic update
+    setMovies((currentMovies) => currentMovies.filter((movie) => movie.id !== movieId));
     try {
       await removeFavorite(movieId);
-      setMovies((currentMovies) => currentMovies.filter((movie) => movie.id !== movieId));
     } catch (err) {
       console.error('Error removing movie:', err);
-      alert('Error removing movie from your list');
+      // Fallback/log
     }
   };
 
-  if (loading) {
-    return (
-      <div className="bg-black min-h-screen text-white">
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-2xl">Loading your list...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-black min-h-screen text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="mb-10 rounded-2xl border border-gray-800 bg-gradient-to-r from-gray-950 via-black to-gray-950 p-6">
+    <div className="bg-[#0a0a0a] min-h-screen text-white">
+      {/* Header */}
+      <div className="bg-gradient-to-b from-[#141414] to-[#0a0a0a] border-b border-white/[0.06]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="text-gray-400 hover:text-white mb-4 transition"
+            className="text-gray-400 hover:text-white text-sm transition mb-4 flex items-center gap-1"
           >
-            Back to Home
+            ← Back to Home
           </button>
-          <h1 className="text-4xl font-bold mb-2">My List</h1>
-          <p className="text-gray-400">
-            {movies.length} movie{movies.length !== 1 ? 's' : ''} in your watchlist
-          </p>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold flex items-center gap-3">
+                <span>🗂️</span> My List
+              </h1>
+              {!loading && (
+                <p className="text-gray-400 mt-1">
+                  {movies.length} movie{movies.length !== 1 ? 's' : ''} saved in your list
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/search')}
+              className="flex-shrink-0 px-5 py-2.5 bg-[#e50914] hover:bg-red-700 rounded-xl font-semibold text-sm transition btn-glow"
+            >
+              Discover More
+            </button>
+          </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {/* Error State */}
         {error && (
-          <div className="bg-red-900 border border-red-700 rounded-2xl p-4 mb-8 text-center">
-            <p className="text-red-200">{error}</p>
+          <div className="bg-red-900/20 border border-red-600 rounded-2xl p-4 mb-8 text-red-300 text-sm">
+            {error}
           </div>
         )}
 
-        {movies.length === 0 ? (
-          <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800 text-center">
-            <h2 className="text-3xl font-bold mb-2">Your List is Empty</h2>
-            <p className="text-gray-400 mb-6">
-              Add movies from a details page with the + button and remove them later with the - button.
+        {/* Loading / Results */}
+        {loading ? (
+          <MyListSkeleton />
+        ) : movies.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="text-7xl mb-6">🗂️</div>
+            <h2 className="text-3xl font-bold mb-3">Your Saved List is Empty</h2>
+            <p className="text-gray-400 mb-8 max-w-md">
+              Keep track of movies you love. Add movies to your list from their details pages to see them here.
             </p>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="bg-red-600 px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition"
+              className="px-8 py-3 bg-[#e50914] hover:bg-red-700 rounded-xl font-bold transition btn-glow"
             >
               Discover Movies
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 animate-fade-in">
             {movies.map((movie) => (
               <div
                 key={movie.id}
-                className="bg-gray-900 rounded-2xl overflow-hidden hover:shadow-2xl transition group cursor-pointer border border-gray-800"
+                className="bg-[#141414] rounded-2xl overflow-hidden border border-white/[0.06] group cursor-pointer card-glow transition-all hover:-translate-y-1 hover:shadow-2xl"
               >
-                <div className="relative overflow-hidden bg-gray-800 h-64">
+                {/* Poster */}
+                <div className="relative overflow-hidden bg-[#1f1f1f]" style={{ height: '240px' }}>
                   {movie.poster_path ? (
                     <>
                       <img
                         src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
                         alt={movie.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onClick={() => navigate(`/movie/${movie.id}`)}
                       />
-                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition"></div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemove(movie.id)}
-                        className="absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white h-9 w-9 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-                        title="Remove from My List"
-                      >
-                        -
-                      </button>
+                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity" />
                     </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      onClick={() => navigate(`/movie/${movie.id}`)}
+                    >
+                      <span className="text-4xl text-gray-600">🎬</span>
                     </div>
                   )}
+
+                  {/* Remove button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemove(movie.id);
+                    }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-[#e50914] text-white text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    title="Remove from My List"
+                  >
+                    ✕
+                  </button>
                 </div>
 
-                <div className="p-4">
-                  <h3
-                    className="font-bold text-sm line-clamp-2 hover:text-red-600 transition"
-                    onClick={() => navigate(`/movie/${movie.id}`)}
-                  >
+                {/* Info */}
+                <div className="p-3" onClick={() => navigate(`/movie/${movie.id}`)}>
+                  <h3 className="font-bold text-sm line-clamp-2 hover:text-[#e50914] transition leading-snug">
                     {movie.title || movie.name}
                   </h3>
-                  <p className="text-gray-400 text-xs mt-2">
+                  <p className="text-gray-500 text-xs mt-1">
                     {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
                   </p>
-                  <div className="flex items-center mt-2">
-                    <span className="text-yellow-500 text-sm">*</span>
-                    <span className="text-sm ml-1 font-bold">
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <span className="text-yellow-400 text-sm">★</span>
+                    <span className="text-white text-sm font-semibold">
                       {movie.vote_average?.toFixed(1)}
                     </span>
-                    <span className="text-gray-500 text-xs ml-1">
-                      ({movie.vote_count} votes)
-                    </span>
+                    <span className="text-gray-500 text-xs">({movie.vote_count?.toLocaleString()})</span>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {movies.length > 0 && (
-          <div className="mt-16 bg-gray-900 rounded-2xl p-8 border border-gray-800">
-            <h3 className="text-lg font-bold mb-4">Tip</h3>
-            <p className="text-gray-300">
-              Click any movie to open details. Use the - button to remove it from your saved list instantly.
-            </p>
           </div>
         )}
       </div>

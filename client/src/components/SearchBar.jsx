@@ -43,24 +43,24 @@ export default function SearchBar({ onSearch, loading }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search movies, actors, genres..."
-                className="w-full px-4 py-3 bg-gray-800 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 transition placeholder-gray-400"
+                className="w-full px-4 py-3 bg-[#1f1f1f] border border-white/[0.06] text-white rounded-xl focus:outline-none focus:border-[#e50914] transition placeholder-gray-500"
               />
               {query && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="absolute right-3 top-3 text-gray-400 hover:text-white transition text-sm"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition text-sm"
                 >
-                  Clear
+                  ✕
                 </button>
               )}
             </div>
             <button
               type="submit"
               disabled={loading || isSearching || !query.trim()}
-              className="px-5 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-xl transition"
+              className="px-6 py-3 bg-[#e50914] hover:bg-red-700 disabled:bg-gray-800 disabled:cursor-not-allowed text-white font-bold rounded-xl transition btn-glow"
             >
-              {isSearching ? '...' : 'Search'}
+              {isSearching ? '…' : 'Search'}
             </button>
           </form>
         </div>

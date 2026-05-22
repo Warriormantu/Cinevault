@@ -1,21 +1,23 @@
 import axios from 'axios';
 import { API_BASE_URL } from './config';
 
-// Backend API
+// Backend API instance (used for non-auth backend calls)
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-// Auth endpoints
-export const login = (email, password) => 
-  api.post('/auth/login', { email, password });
-
-export const register = (username, email, password) => 
-  api.post('/auth/register', { username, email, password });
-
-export const logout = () => 
-  api.post('/auth/logout');
+// Attach token to all backend API requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // TMDB API Configuration
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'YOUR_TMDB_API_KEY';
@@ -40,9 +42,5 @@ export const getMovieDetails = (id) =>
 
 export const searchMovies = (query) =>
   tmdbApi.get(`/search/movie?api_key=${TMDB_API_KEY}&query=${query}&language=en-US&page=1`).then(res => res.data.results);
-
-// Movie endpoints
-export const getMovies = () => 
-  api.get('/movies');
 
 export default api;

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getFavorites, removeFavorite } from '../services/user';
+import { getWatchlist, removeFromWatchlist } from '../services/user';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
 // ── Skeleton ──────────────────────────────────────────────────────
-function FavoritesSkeleton() {
+function WatchlistSkeleton() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
       {Array.from({ length: 8 }).map((_, i) => (
@@ -21,36 +21,36 @@ function FavoritesSkeleton() {
   );
 }
 
-export default function Favorites() {
+export default function Watchlist() {
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchFavorites = async () => {
+    const fetchWatchlist = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const favRes = await getFavorites();
-        const favoriteIds = favRes.data.favorites || [];
+        const res = await getWatchlist();
+        const watchlistIds = res.data.watchlist || [];
 
-        if (favoriteIds.length === 0) {
+        if (watchlistIds.length === 0) {
           setMovies([]);
           setLoading(false);
           return;
         }
 
         const movieDetails = await Promise.all(
-          favoriteIds.map(async (id) => {
+          watchlistIds.map(async (id) => {
             try {
-              const res = await axios.get(
+              const movieRes = await axios.get(
                 `${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=en-US`
               );
-              return res.data;
+              return movieRes.data;
             } catch (err) {
-              console.error(`Error fetching movie ${id}:`, err);
+              console.error(`Failed to fetch movie ${id}:`, err);
               return null;
             }
           })
@@ -58,24 +58,24 @@ export default function Favorites() {
 
         setMovies(movieDetails.filter(Boolean));
       } catch (err) {
-        console.error('Error fetching favorites:', err);
-        setError('Failed to load your favorites. Make sure you are logged in.');
+        console.error('Error fetching watchlist:', err);
+        setError('Failed to load your watchlist. Make sure you are logged in.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFavorites();
+    fetchWatchlist();
   }, []);
 
   const handleRemove = async (movieId) => {
     // Optimistic update
-    setMovies((current) => current.filter((movie) => movie.id !== movieId));
+    setMovies((prev) => prev.filter((m) => m.id !== movieId));
     try {
-      await removeFavorite(movieId);
+      await removeFromWatchlist(movieId);
     } catch (err) {
-      console.error('Error removing movie:', err);
-      // Fallback/log
+      console.error('Error removing from watchlist:', err);
+      // Could re-add on failure, but for simplicity just log
     }
   };
 
@@ -94,11 +94,11 @@ export default function Favorites() {
           <div className="flex items-end justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold flex items-center gap-3">
-                <span>❤️</span> My Favorites
+                <span>📖</span> My Watchlist
               </h1>
               {!loading && (
                 <p className="text-gray-400 mt-1">
-                  {movies.length} movie{movies.length !== 1 ? 's' : ''} in your favorites
+                  {movies.length} movie{movies.length !== 1 ? 's' : ''} saved to watch
                 </p>
               )}
             </div>
@@ -114,23 +114,24 @@ export default function Favorites() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Error State */}
+        {/* Error */}
         {error && (
           <div className="bg-red-900/20 border border-red-600 rounded-2xl p-4 mb-8 text-red-300 text-sm">
             {error}
           </div>
         )}
 
-        {/* Loading / Results */}
+        {/* Loading */}
         {loading ? (
-          <FavoritesSkeleton />
+          <WatchlistSkeleton />
         ) : movies.length === 0 ? (
-          /* Empty State */
+          /* Empty state */
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="text-7xl mb-6">❤️</div>
-            <h2 className="text-3xl font-bold mb-3">No Favorites Yet</h2>
+            <div className="text-7xl mb-6">📖</div>
+            <h2 className="text-3xl font-bold mb-3">Your Watchlist is Empty</h2>
             <p className="text-gray-400 mb-8 max-w-md">
-              Start building your personal library. Mark movies as favorites from their details pages to keep them saved here.
+              Save movies you want to watch later. Browse our collection and add titles to your
+              watchlist with a single click.
             </p>
             <button
               type="button"
@@ -141,6 +142,7 @@ export default function Favorites() {
             </button>
           </div>
         ) : (
+          /* Movie grid */
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 animate-fade-in">
             {movies.map((movie) => (
               <div
@@ -157,6 +159,7 @@ export default function Favorites() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onClick={() => navigate(`/movie/${movie.id}`)}
                       />
+                      {/* Dark overlay on hover */}
                       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity" />
                     </>
                   ) : (
@@ -176,7 +179,7 @@ export default function Favorites() {
                       handleRemove(movie.id);
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-[#e50914] text-white text-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                    title="Remove from Favorites"
+                    title="Remove from Watchlist"
                   >
                     ✕
                   </button>

@@ -8,27 +8,53 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user is already logged in on mount
+  // Restore auth state from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
     if (storedToken) {
       setToken(storedToken);
-      // Decode token to get user info (simple approach)
-      try {
-        const base64Url = storedToken.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split("")
-            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-            .join("")
-        );
-        // Extract user ID from token
-        const decoded = JSON.parse(jsonPayload);
-        setUser({ id: decoded.id });
-      } catch (err) {
-        console.error("Error decoding token", err);
-        localStorage.removeItem("token");
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          console.error("Error parsing stored user:", err);
+          localStorage.removeItem("user");
+          // Fallback: decode id from token
+          try {
+            const base64Url = storedToken.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const jsonPayload = decodeURIComponent(
+              atob(base64)
+                .split("")
+                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                .join("")
+            );
+            const decoded = JSON.parse(jsonPayload);
+            setUser({ id: decoded.id });
+          } catch (decodeErr) {
+            console.error("Error decoding token:", decodeErr);
+            localStorage.removeItem("token");
+          }
+        }
+      } else {
+        // No stored user object — decode minimal info from token
+        try {
+          const base64Url = storedToken.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          const decoded = JSON.parse(jsonPayload);
+          setUser({ id: decoded.id });
+        } catch (err) {
+          console.error("Error decoding token:", err);
+          localStorage.removeItem("token");
+        }
       }
     }
     setLoading(false);
@@ -39,6 +65,7 @@ export const AuthProvider = ({ children }) => {
       const res = await authService.login({ email, password });
       const { token, user } = res.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
       setToken(token);
       setUser(user);
       return res.data;
@@ -52,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       const res = await authService.register({ username, email, password });
       const { token, user } = res.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
       setToken(token);
       setUser(user);
       return res.data;
@@ -67,6 +95,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Logout error:", error);
     } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setToken(null);
       setUser(null);
     }
@@ -90,3 +119,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 export default AuthContext;
+
