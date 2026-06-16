@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function TrailerModal({ trailerKey, onClose }) {
   // Lock body scroll while modal is open
@@ -23,7 +24,7 @@ export default function TrailerModal({ trailerKey, onClose }) {
     if (e.target === e.currentTarget) onClose();
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fade-in px-4"
       onClick={handleBackdropClick}
@@ -51,6 +52,7 @@ export default function TrailerModal({ trailerKey, onClose }) {
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
