@@ -27,7 +27,11 @@ app.use(
       // Allow requests with no origin (mobile apps, Postman, curl, etc.)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app") ||
+        /\.vercel\.app$/.test(origin)
+      ) {
         return callback(null, true);
       }
 
